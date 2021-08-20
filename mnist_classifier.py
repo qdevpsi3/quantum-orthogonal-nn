@@ -170,10 +170,6 @@ def main():
         mnist(digits))
     train_features, test_features = pca(train_images, test_images,
                                         n_components)
-    train_features, train_labels = jax.device_put(
-        (train_features, train_labels))
-    test_features = jax.device_put(test_features)
-    test_labels = jax.device_put(test_labels)
 
     # build batch iterator
     num_train = train_images.shape[0]
