@@ -134,7 +134,7 @@ def orthogonal_network_builder(output_sizes=[4, 2],
                                      init=b_init)
                 x += b
 
-            if idx < len(output_sizes) or activate_final:
+            if (idx < len(output_sizes) - 1) or activate_final:
                 x = activation(x)
 
             x = x[:, -size:]
