@@ -18,7 +18,7 @@ This repository contains an implementation of the <ins>Orthogonal Neural Network
 
 The function `orthogonal_network_builder` returns a trainable orthogonal network ( written with [dm-haiku](https://github.com/deepmind/dm-haiku)) with the following set of parameters :
 
-| Parameters | Frozen-Lake |
+| Parameters | Description|
 |:-:|:-:|
 | `output_sizes` | Sequence of layer sizes. |
 | `with_bias` | Whether or not to apply a bias in each layer. |
@@ -37,7 +37,6 @@ $ pip install -r requirements.txt
 ```
 You can run an experiment using the following command :
 ```
-$ cd src
 $ python mnist_classifier.py
 ```
 
