@@ -8,7 +8,7 @@
 </div>
 
 ## **Description**
-This repository contains an implementation of the <ins>Orthogonal Neural Network</ins> and its application to the  <ins>MNIST</ins> dataset as in :
+This repository contains an <ins>unofficial</ins> implementation of the <ins>Quantum-inspired Orthogonal Neural Network</ins> and its application to the  <ins>MNIST</ins> dataset classification problem as in :
 
 - Paper : **Classical and Quantum Algorithms for Orthogonal Neural Networks**
 - Authors : **Kerenidis, Landman and Mathur**
@@ -16,14 +16,14 @@ This repository contains an implementation of the <ins>Orthogonal Neural Network
 
 ## **Details**
 
-The function `orthogonal_network_builder` returns a trainable orthogonal network ( written with [dm-haiku](https://github.com/deepmind/dm-haiku)) with the following set of parameters :
+The function `orthogonal_network_builder` returns a trainable orthogonal network ( using [dm-haiku](https://github.com/deepmind/dm-haiku)) with the following set of parameters :
 
 | Parameters | Description|
 |:-:|:-:|
 | `output_sizes` | Sequence of layer sizes. |
 | `with_bias` | Whether or not to apply a bias in each layer. |
-| `activation` | Activation function to apply between Linear layers. |
-| `activate_final` | Whether or not to activate the final layer of the MLP. |
+| `activation` | Activation function to apply between layers. |
+| `activate_final` | Whether or not to activate the final layer. |
 | `normalize` | Whether or not to normalize layer inputs. |
 
 ## **Usage**
