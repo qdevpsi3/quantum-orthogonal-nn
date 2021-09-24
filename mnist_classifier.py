@@ -103,10 +103,10 @@ def orthogonal_network_builder(output_sizes=[4, 2],
 
         for idx, size in enumerate(output_sizes):
 
-            wires = [
+            wires = jnp.array([
                 j for i in range(1, x.shape[-1])
                 for j in range(i, max(0, i - size), -1)
-            ]
+            ])
 
             thetas_init = hk.initializers.RandomUniform(minval=-np.pi,
                                                         maxval=np.pi)
@@ -119,12 +119,16 @@ def orthogonal_network_builder(output_sizes=[4, 2],
                 norm = jnp.linalg.norm(x, axis=1)[..., None]
                 x /= jax.lax.stop_gradient(norm)
 
-            for j, theta in zip(wires, thetas):
+            def loop(i, x):
+                j, theta = wires[i], thetas[i]
                 cos_t, sin_t = jnp.cos(theta), jnp.sin(theta)
                 a_t, b_t = x[:, j - 1], x[:, j]
                 c_t, d_t = cos_t * a_t - sin_t * b_t, sin_t * a_t + cos_t * b_t
                 x = jax.ops.index_update(x, jax.ops.index[:, j - 1], c_t)
                 x = jax.ops.index_update(x, jax.ops.index[:, j], d_t)
+                return x
+
+            x = jax.lax.fori_loop(0, len(wires), loop, x)
 
             if with_bias:
                 b_init = hk.initializers.Constant(0.)
