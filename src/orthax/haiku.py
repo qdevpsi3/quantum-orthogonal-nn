@@ -1,31 +1,13 @@
-from collections import defaultdict
-
 import jax
 import jax.numpy as jnp
 import numpy as np
 
 import haiku as hk
 
+from .common import (_apply_orthogonal_, _get_orthogonal_wires_,
+                     _get_parallel_wires_)
 
-def _get_parallel_wires_(list_wires, depth=0):
-    pos = defaultdict(lambda: depth)
-    p_wires = [[]]
-    for wires in list_wires:
-        if type(wires) == int:
-            wires = [wires]
-        g_pos = max([pos[wire] for wire in wires])
-        if len(p_wires) - 1 < g_pos:
-            p_wires.append([])
-        p_wires[g_pos].append(wires)
-        for wire in wires:
-            pos[wire] = g_pos + 1
-    return p_wires
-
-
-def _get_orthogonal_wires_(input_size, output_size):
-    list_wires = [(j - 1, j) for i in range(1, input_size)
-                  for j in range(i, max(0, i - output_size), -1)]
-    return list_wires
+__all__ = ['OrthogonalLinear', 'OrthogonalMLP']
 
 
 class OrthogonalLinear(hk.Module):
@@ -58,26 +40,14 @@ class OrthogonalLinear(hk.Module):
         list_wires = _get_orthogonal_wires_(input_size, output_size)
         parallel_wires = _get_parallel_wires_(list_wires)
         parallel_wires = list(map(jnp.array, parallel_wires))
+        thetas = hk.get_parameter("thetas",
+                                  shape=[
+                                      len(list_wires),
+                                  ],
+                                  dtype=out.dtype,
+                                  init=self.t_init)
 
-        for i, p_wires in enumerate(parallel_wires):
-            thetas = hk.get_parameter("thetas_depth_{}".format(i),
-                                      shape=[p_wires.shape[0]],
-                                      dtype=out.dtype,
-                                      init=self.t_init)
-            cos_t, sin_t = jnp.cos(thetas), jnp.sin(thetas)
-            unitaries = jnp.stack(
-                [jnp.stack([cos_t, sin_t]),
-                 jnp.stack([-sin_t, cos_t])])
-            unitaries = unitaries.transpose(2, 0, 1)
-            states = jnp.stack([out[:, p_wires[:, 0]], out[:, p_wires[:, 1]]],
-                               -1)
-            states = states.transpose(1, 0, 2)
-            results = jax.vmap(jnp.dot)(states, unitaries).transpose(1, 0, 2)
-            out = jax.ops.index_update(out, jax.ops.index[:, p_wires[:, 0]],
-                                       results[:, :, 0])
-            out = jax.ops.index_update(out, jax.ops.index[:, p_wires[:, 1]],
-                                       results[:, :, 1])
-
+        out = _apply_orthogonal_(thetas, out, parallel_wires)
         out = out[:, -output_size:]
 
         if self.with_bias:
