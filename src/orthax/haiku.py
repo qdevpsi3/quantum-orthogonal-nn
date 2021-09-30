@@ -4,8 +4,7 @@ import numpy as np
 
 import haiku as hk
 
-from .common import (_apply_orthogonal_, _get_orthogonal_wires_,
-                     _get_parallel_wires_)
+from .common import _apply_orthogonal_
 
 __all__ = ['OrthogonalLinear', 'OrthogonalMLP']
 
@@ -37,17 +36,14 @@ class OrthogonalLinear(hk.Module):
         else:
             out = inputs
 
-        list_wires = _get_orthogonal_wires_(input_size, output_size)
-        parallel_wires = _get_parallel_wires_(list_wires)
-        parallel_wires = list(map(jnp.array, parallel_wires))
+        thetas_shape = ((2 * input_size - output_size - 1) * output_size //
+                        2, )
         thetas = hk.get_parameter("thetas",
-                                  shape=[
-                                      len(list_wires),
-                                  ],
+                                  shape=thetas_shape,
                                   dtype=out.dtype,
                                   init=self.t_init)
 
-        out = _apply_orthogonal_(thetas, out, parallel_wires)
+        out = _apply_orthogonal_(thetas, out, output_size)
         out = out[:, -output_size:]
 
         if self.with_bias:

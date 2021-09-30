@@ -59,11 +59,11 @@ from jax.experimental import stax
 import orthax
 
 init_fun, apply_fun = stax.serial(
-    orthax.stax.OrthogonalDense(8, 8),
+    orthax.stax.OrthogonalDense(8),
     stax.Sigmoid,
-    orthax.stax.OrthogonalDense(8, 4),
+    orthax.stax.OrthogonalDense(4),
     stax.Sigmoid,
-    orthax.stax.OrthogonalDense(4, 4),
+    orthax.stax.OrthogonalDense(4),
 )
 ```
 

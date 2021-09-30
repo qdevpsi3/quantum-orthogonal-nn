@@ -4,8 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from .common import (_apply_orthogonal_, _get_orthogonal_wires_,
-                     _get_parallel_wires_)
+from .common import _apply_orthogonal_
 
 __all__ = ['OrthogonalDense']
 
@@ -18,21 +17,18 @@ def b_init(key, shape, dtype=jnp.float_):
     return jnp.zeros(shape, jax.dtypes.canonicalize_dtype(dtype))
 
 
-def OrthogonalDense(in_dim, out_dim, t_init=t_init, b_init=b_init):
-    list_wires = _get_orthogonal_wires_(in_dim, out_dim)
-    parallel_wires = _get_parallel_wires_(list_wires)
-    parallel_wires = list(map(jnp.array, parallel_wires))
-
+def OrthogonalDense(out_dim, t_init=t_init, b_init=b_init):
     def init_fun(rng, input_shape):
         output_shape = input_shape[:-1] + (out_dim, )
         t_key, b_key = jax.random.split(rng)
-        t = t_init(t_key, (len(list_wires), ))
+        t_shape = ((2 * input_shape[-1] - out_dim - 1) * out_dim // 2, )
+        t = t_init(t_key, t_shape)
         b = b_init(b_key, (out_dim, ))
         return output_shape, (t, b)
 
     def apply_fun(params, inputs, **kwargs):
         t, b = params
-        out = _apply_orthogonal_(t, inputs, parallel_wires)
+        out = _apply_orthogonal_(t, inputs, out_dim)
         out = out[:, -out_dim:] + b
         return out
 
