@@ -9,6 +9,11 @@ __all__ = ['apply_orthogonal']
 
 
 def apply_orthogonal(thetas, inputs, output_size):
+    """ Applies a sequence of orthogonal transformations to a sequence of inputs.
+        <thetas> is a sequence of scalars, with length (2 * n - d - 1) * d // 2.
+        <inputs> is a sequence of vectors, each of shape n.
+        <output_size> is the desired output size, equal to d.
+    """
     input_size, out = inputs.shape[-1], inputs
     if input_size == output_size:
         output_size -= 1
