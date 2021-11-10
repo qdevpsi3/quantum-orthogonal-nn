@@ -4,7 +4,7 @@ import jax
 import jax.numpy as jnp
 import numpy as np
 
-from .common import _apply_orthogonal_
+from orthax.common import apply_orthogonal
 
 __all__ = ['OrthogonalDense']
 
@@ -28,7 +28,7 @@ def OrthogonalDense(out_dim, t_init=t_init, b_init=b_init):
 
     def apply_fun(params, inputs, **kwargs):
         t, b = params
-        out = _apply_orthogonal_(t, inputs, out_dim)
+        out = apply_orthogonal(t, inputs, out_dim)
         out = out[:, -out_dim:] + b
         return out
 

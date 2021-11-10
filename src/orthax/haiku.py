@@ -3,8 +3,7 @@ import jax.numpy as jnp
 import numpy as np
 
 import haiku as hk
-
-from .common import _apply_orthogonal_
+from orthax.common import apply_orthogonal
 
 __all__ = ['OrthogonalLinear', 'OrthogonalMLP']
 
@@ -43,7 +42,7 @@ class OrthogonalLinear(hk.Module):
                                   dtype=out.dtype,
                                   init=self.t_init)
 
-        out = _apply_orthogonal_(thetas, out, output_size)
+        out = apply_orthogonal(thetas, out, output_size)
         out = out[:, -output_size:]
 
         if self.with_bias:
