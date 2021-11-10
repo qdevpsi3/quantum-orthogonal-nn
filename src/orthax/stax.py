@@ -28,8 +28,7 @@ def OrthogonalDense(out_dim, t_init=t_init, b_init=b_init):
 
     def apply_fun(params, inputs, **kwargs):
         t, b = params
-        out = apply_orthogonal(t, inputs, out_dim)
-        out = out[:, -out_dim:] + b
+        out = apply_orthogonal(t, inputs, out_dim) + b
         return out
 
     return init_fun, apply_fun

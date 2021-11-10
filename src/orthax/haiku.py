@@ -43,7 +43,6 @@ class OrthogonalLinear(hk.Module):
                                   init=self.t_init)
 
         out = apply_orthogonal(thetas, out, output_size)
-        out = out[:, -output_size:]
 
         if self.with_bias:
             b = hk.get_parameter("bias",
