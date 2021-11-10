@@ -34,9 +34,9 @@ class OrthogonalLinear(hk.Module):
             out = inputs / jax.lax.stop_gradient(norm)
         else:
             out = inputs
-
-        thetas_shape = ((2 * input_size - output_size - 1) * output_size //
-                        2, )
+        max_size = max(input_size, output_size)
+        min_size = min(input_size, output_size)
+        thetas_shape = ((2 * max_size - min_size - 1) * min_size // 2, )
         thetas = hk.get_parameter("thetas",
                                   shape=thetas_shape,
                                   dtype=out.dtype,

@@ -21,7 +21,9 @@ def OrthogonalDense(out_dim, t_init=t_init, b_init=b_init):
     def init_fun(rng, input_shape):
         output_shape = input_shape[:-1] + (out_dim, )
         t_key, b_key = jax.random.split(rng)
-        t_shape = ((2 * input_shape[-1] - out_dim - 1) * out_dim // 2, )
+        max_size = max(input_shape[-1], out_dim)
+        min_size = min(input_shape[-1], out_dim)
+        t_shape = ((2 * max_size - min_size - 1) * min_size // 2, )
         t = t_init(t_key, t_shape)
         b = b_init(b_key, (out_dim, ))
         return output_shape, (t, b)
