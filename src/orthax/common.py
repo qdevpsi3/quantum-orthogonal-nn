@@ -42,12 +42,12 @@ def apply_orthogonal(thetas, inputs, output_size):
         slice_out = lax.dynamic_slice_in_dim(out, start_index, slice_size, -1)
         slice_out = lax.reshape(slice_out,
                                 (slice_out.shape[0], *slice_thetas.shape))
-        slice_res = jax.vmap(lax.mul, (0, None))(slice_out, slice_thetas)
-        slice_res = jax.vmap(lax.batch_matmul, (0, None))(slice_res,
-                                                          jnp.array([
-                                                              [1., -1.],
-                                                              [1., 1.],
-                                                          ]))
+        slice_mat = jnp.array([
+            [slice_thetas[:, 0], -slice_thetas[:, 1]],
+            [slice_thetas[:, 1], slice_thetas[:, 0]],
+        ]).transpose(2, 0, 1)
+        slice_res = lax.batch_matmul(slice_out.transpose(1, 0, 2), slice_mat)
+        slice_res = slice_res.transpose(1, 0, 2)
         slice_res = lax.reshape(slice_res, (slice_res.shape[0], slice_size))
         out = lax.dynamic_update_slice_in_dim(out, slice_res, start_index, -1)
     if input_size > output_size:
