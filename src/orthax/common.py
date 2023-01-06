@@ -37,14 +37,16 @@ def apply_orthogonal(thetas, inputs, output_size):
     thetas_idxs = np.cumsum(slice_sizes // 2)
     for start_index, slice_size, thetas_index in zip(start_idxs, slice_sizes,
                                                      thetas_idxs):
-        slice_thetas = lax.dynamic_slice_in_dim(thetas, thetas_index,
+        # bug: it was not using all thetas, fixed below
+        slice_thetas = lax.dynamic_slice_in_dim(thetas, thetas_index-slice_size//2,
                                                 slice_size // 2, 0)
         slice_out = lax.dynamic_slice_in_dim(out, start_index, slice_size, -1)
         slice_out = lax.reshape(slice_out,
                                 (slice_out.shape[0], *slice_thetas.shape))
+        # bug: wrong negative sign, fixed below 
         slice_mat = jnp.array([
-            [slice_thetas[:, 0], -slice_thetas[:, 1]],
-            [slice_thetas[:, 1], slice_thetas[:, 0]],
+            [slice_thetas[:, 0], slice_thetas[:, 1]],
+            [-slice_thetas[:, 1], slice_thetas[:, 0]],
         ]).transpose(2, 0, 1)
         slice_res = lax.batch_matmul(slice_out.transpose(1, 0, 2), slice_mat)
         slice_res = slice_res.transpose(1, 0, 2)
